@@ -1,44 +1,81 @@
 import React, { Component } from 'react';
-import { UserPosts } from './UserPostsComponent';
+import UserPosts from './UserPostsComponent';
+import { Jumbotron } from 'reactstrap';
+import { Media, Badge } from 'reactstrap';
 class Main extends Component {
 
     constructor(props) {
         super(props);
+
+        //Took few static data for a single user , Since it is not designed for multiple user
         this.state = {
             id: 1,
+            follwers: 323,
+            following: 0,
             name: 'Debashis Singh',
             phone: '7978104553',
             posts: []
         }
+        this.likePost = this.likePost.bind(this);
+        this.deletePost = this.deletePost.bind(this);
     }
+
     saveToLocalStorage() {
         localStorage.setItem("user", JSON.stringify(this.state));
 
     }
+
+    likePost(post) {
+        let posts = this.state.posts;
+        posts.map(item => {
+            if (item.id === post.id) {
+                item.likes = item.likes + 1;
+            }
+            return item;
+        });
+        this.setState({ posts: posts });
+        this.saveToLocalStorage();
+    }
+
+    deletePost(post) {
+        let posts = this.state.posts;
+        posts.splice(post.id, 1)
+        this.setState({ posts: posts });
+        this.saveToLocalStorage();
+        setTimeout(() => {
+            alert("Your post is deleted.")
+        }, 400);
+    }
+
+    commentPost(post) {
+
+    }
+
+    //Get the uploaded image data and set to localStorage and local state.
     onChange(e) {
         let files = e.target.files;
         let reader = new FileReader();
         reader.readAsDataURL(files[0]);
         let date = new Date();
-        if (files[0].size < 5000000)
-            reader.onload = (e) => {
-                let posts = this.state.posts;
-                let postItem = {
-                    image: e.target.result,
-                    likes: 0,
-                    comments: [],
-                    timestamp: date,
-                    id: posts.length
-                }
-                posts.push(postItem);
-                this.setState({ posts: posts });
-                this.saveToLocalStorage();
+        reader.onload = (e) => {
+            let posts = this.state.posts;
+            let postItem = {
+                image: e.target.result,
+                likes: 0,
+                comments: [],
+                timestamp: date,
+                id: posts.length
             }
+            posts.push(postItem);
+            this.setState({ posts: posts });
+            this.saveToLocalStorage();
+        }
 
     }
+
     componentDidMount() {
         let userData = JSON.parse(localStorage.getItem('user'));
-        if (userData.posts.length == 0) {
+        if (!userData) {
             fetch('http://starlord.hackerearth.com/insta')
                 .then(result => result.json())
                 .then((results) => {
@@ -61,22 +98,38 @@ class Main extends Component {
         else {
             this.setState({ posts: userData.posts });
         }
-
-
-
     }
-    userPosts() {
 
-    }
     render() {
+
         let userPosts;
         if (this.state.posts)
-            userPosts = <UserPosts posts={this.state.posts} />
+            userPosts = <UserPosts posts={this.state.posts} likePost={this.likePost} deletePost={this.deletePost} />
         else
             userPosts = <div></div>;
         return (<div>
-            Main Component
-            <input type="file" name="file" onChange={(e) => { this.onChange(e) }} />
+            <Jumbotron>
+                <div className="container">
+                    <div className="row row-header">
+                        <div className="col-12 col-sm-6">
+                            <Media>
+                                <Media body>
+                                    <Media heading>
+                                        <h4>Debashis Singh</h4>
+                                        <p> <Badge color="light">posts</Badge> <Badge color="success">{this.state.posts.length}</Badge></p>
+                                        <p> <Badge color="light">follwers</Badge> <Badge color="success">{this.state.follwers}</Badge></p>
+                                        <p> <Badge color="light">following</Badge> <Badge color="success">{this.state.following}</Badge></p>
+                                    </Media>
+
+                                </Media>
+                            </Media>
+                        </div>
+                    </div>
+                </div>
+            </Jumbotron>
+            <h5>Add new post </h5>
+            {/* To add a new post */}
+            <p> <input type="file" name="file" onChange={(e) => { this.onChange(e) }} /></p>
             <div>
                 {userPosts}
             </div>
