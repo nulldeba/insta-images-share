@@ -1,5 +1,16 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+##About the app
+Features added:
+- Show the posts from the given api
+- Add new post
+- Like a post
+- Delete a post
+- Comment on a post(Pending)
+
+Please run 'npm install' before running the app.
+  
+
 ## Available Scripts
 
 In the project directory, you can run:
